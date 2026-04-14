@@ -13,12 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class Home extends AppCompatActivity {
-
-    private TextView tvWeightValue;
-    private TextView tvHeightValue;
-    private TextView tvSleepValue;
-    private TextView tvBMIValue;
-    private TextView tvBMILabel;
+    double bmr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +21,14 @@ public class Home extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        tvWeightValue = findViewById(R.id.tvWeightValue);
-        tvHeightValue = findViewById(R.id.tvHeightValue);
-        tvSleepValue  = findViewById(R.id.tvSleepValue);
-        tvBMIValue    = findViewById(R.id.tvBMIValue);
-        tvBMILabel    = findViewById(R.id.tvBMILabel);
+        TextView tvBMRValue = findViewById(R.id.tvBMRValue);
+        TextView tvBMRlabel = findViewById(R.id.tvBMRLabel);
+        TextView tvWeightValue = findViewById(R.id.tvWeightValue);
+        TextView tvHeightValue = findViewById(R.id.tvHeightValue);
+        TextView tvSleepValue  = findViewById(R.id.tvSleepValue);
+        TextView tvBMIValue  = findViewById(R.id.tvBMIValue);
+        TextView tvBMILabel  = findViewById(R.id.tvBMILabel);
+
 
         SharedPreferences sharedPreferences = getSharedPreferences("BodyData", MODE_PRIVATE);
 
@@ -42,9 +40,14 @@ public class Home extends AppCompatActivity {
             return;
         }
 
+
+
         float weight = sharedPreferences.getFloat("Weight", 0);
         float height = sharedPreferences.getFloat("Height", 0);
         int sleep  = sharedPreferences.getInt("Sleep", 0);
+        int age = sharedPreferences.getInt("Age", 16);
+        float activity = sharedPreferences.getFloat("Active", 1.2f);
+        boolean isMale = sharedPreferences.getBoolean("isMale", true);
 
 
         tvWeightValue.setText(weight + " kg");
@@ -67,7 +70,18 @@ public class Home extends AppCompatActivity {
             }
         }
 
-        // Edge to edge insets
+        if (isMale){
+            bmr = (10 * weight + 6.25 * height - 5 * age + 5) * activity;
+            tvBMRValue.setText(String.format("%.0f",bmr/activity) + " calories");
+            tvBMRlabel.setText("You need " + String.format("%.0f",bmr) + " calories to mantain your weight");
+
+        }else {
+            bmr = (10 * weight + 6.25 * height - 5 * age -161) * activity;
+            tvBMRValue.setText(String.format("%.0f",bmr/activity) + "Cals");
+            tvBMRlabel.setText("You need " + String.format("%.0f",bmr) + " calories to mantain your weight");
+        }
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
